@@ -1,7 +1,10 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:quick_parked/views/map_view.dart';
 import 'package:quick_parked/views/signup_view.dart';
 import 'package:quick_parked/widgets/credentials_field.dart';
 import 'package:quick_parked/widgets/quickparked_logo.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class _RecoverPassword extends StatefulWidget {
   // ignore: unused_element
@@ -14,6 +17,20 @@ class _RecoverPassword extends StatefulWidget {
 class _RecoverPasswordState extends State<_RecoverPassword> {
   final recoverController = TextEditingController();
   bool recoverEmpty = false;
+
+  void doResetPassword(BuildContext context, String email) =>
+      FirebaseAuth.instance
+          .sendPasswordResetEmail(email: email)
+          .onError(((error, stackTrace) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text.rich(TextSpan(children: [
+          const TextSpan(
+              text: "No se ha podido restaurar la constraseña\n",
+              style: TextStyle(color: Colors.red)),
+          TextSpan(text: error.toString())
+        ]))));
+      }));
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -60,7 +77,7 @@ class _RecoverPasswordState extends State<_RecoverPassword> {
                     behavior: SnackBarBehavior.floating,
                   ));
 
-                  // TODO Recover password
+                  doResetPassword(context, recoverController.text);
                   Navigator.of(context).pop();
                 },
               )
@@ -72,6 +89,29 @@ class _RecoverPasswordState extends State<_RecoverPassword> {
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
+
+  void attemptLogin(BuildContext context, String email, String password) =>
+      FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password)
+          // Value
+          .then((value) =>
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => const MapView(),
+              )))
+          // Show error
+          .catchError((e) {
+        log("Failed login", level: DiagnosticLevel.error.index);
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text.rich(TextSpan(children: [
+            const TextSpan(
+                text: "No se ha podido iniciar sesión\n",
+                style: TextStyle(color: Colors.red)),
+            TextSpan(text: e.message)
+          ])),
+          behavior: SnackBarBehavior.floating,
+        ));
+      });
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -89,12 +129,13 @@ class LoginView extends StatelessWidget {
                   title: "Iniciar Sesión",
                   submitLabel: "Continuar",
                   onSubmit: (email, password) {
-                    /* --------- Login --------- */
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text("Estamos iniciando sesión tu sesión"),
                       behavior: SnackBarBehavior.floating,
                     ));
-                    // TODO Do login
+
+                    // Try to signin
+                    attemptLogin(context, email, password);
                   }),
               const SizedBox(
                 height: 20,

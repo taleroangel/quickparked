@@ -40,9 +40,11 @@ class HomeView extends StatelessWidget {
                   child:
                       /* Continue Button */
                       ElevatedButton(
-                          onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: ((context) => const LoginView()))),
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: ((context) => const LoginView())));
+                          },
                           child: const Text(
                             "Continuar",
                           )))
