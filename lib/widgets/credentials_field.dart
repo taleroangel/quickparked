@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quick_parked/widgets/password_field.dart';
+import 'package:quickparked/widgets/password_field.dart';
 
 class CredentialsField extends StatefulWidget {
   final String title;
@@ -47,6 +47,7 @@ class _CredentialsFieldState extends State<CredentialsField> {
           ),
           TextField(
             controller: emailController,
+            enableSuggestions: true,
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
                 labelText: "Correo Electrónico",
@@ -87,6 +88,7 @@ class _CredentialsFieldState extends State<CredentialsField> {
                     content: Text("Debes aceptar los términos de servicio"),
                     behavior: SnackBarBehavior.floating,
                   ));
+                  return;
                 }
 
                 // Make the call back

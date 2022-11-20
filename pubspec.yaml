@@ -1,4 +1,4 @@
-name: quick_parked
+name: quickparked
 description: A new Flutter project.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
@@ -9,8 +9,12 @@ environment:
 dependencies:
   firebase_auth: ^4.1.3
   firebase_core: ^2.3.0
+  firebase_database: ^10.0.6
   flutter:
     sdk: flutter
+  flutter_launcher_icons: ^0.11.0
+  flutter_native_splash: ^2.2.15
+  google_maps_flutter: ^2.2.1
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +27,12 @@ flutter:
 
   assets:
     - assets/images/
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: "assets/images/quickparked.png"
+
+flutter_icons:
+  android: "launcher_icon"
+  image_path: "assets/images/quickparked.png"
+  ios: false

@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:quick_parked/views/map_view.dart';
-import 'package:quick_parked/views/signup_view.dart';
-import 'package:quick_parked/widgets/credentials_field.dart';
-import 'package:quick_parked/widgets/quickparked_logo.dart';
+import 'package:quickparked/models/user.dart' as quickparked;
+import 'package:quickparked/views/map_view.dart';
+import 'package:quickparked/views/signup_view.dart';
+import 'package:quickparked/widgets/credentials_field.dart';
+import 'package:quickparked/widgets/quickparked_logo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class _RecoverPassword extends StatefulWidget {
@@ -24,12 +27,14 @@ class _RecoverPasswordState extends State<_RecoverPassword> {
           .onError(((error, stackTrace) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text.rich(TextSpan(children: [
-          const TextSpan(
-              text: "No se ha podido restaurar la constraseña\n",
-              style: TextStyle(color: Colors.red)),
-          TextSpan(text: error.toString())
-        ]))));
+          content: Text.rich(TextSpan(children: [
+            const TextSpan(
+                text: "No se ha podido restaurar la constraseña\n",
+                style: TextStyle(color: Colors.red)),
+            TextSpan(text: error.toString())
+          ])),
+          behavior: SnackBarBehavior.floating,
+        ));
       }));
 
   @override
@@ -94,10 +99,31 @@ class LoginView extends StatelessWidget {
       FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password)
           // Value
-          .then((value) =>
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const MapView(),
-              )))
+          .then((value) {
+        // Get user
+        final userid = value.user!.uid;
+        FirebaseDatabase.instance
+            .ref('users/$userid')
+            .once(DatabaseEventType.value)
+            .then((event) {
+          // Parse JSON
+          final loggedUser = quickparked.User.fromJson(
+              Map<String, dynamic>.from(
+                  event.snapshot.value as Map<Object?, Object?>));
+
+          // Show message
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Sesión iniciada correctamente!"),
+            behavior: SnackBarBehavior.floating,
+          ));
+
+          // Navigation
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => MapView(user: loggedUser),
+          ));
+        });
+      })
           // Show error
           .catchError((e) {
         log("Failed login", level: DiagnosticLevel.error.index);

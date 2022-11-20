@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:quickparked/models/user.dart' as quickparked;
 
 class MapView extends StatelessWidget {
-  const MapView({super.key});
+  final quickparked.User user;
+  const MapView({required this.user, super.key});
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text("QuickParked")),
-        body: const Center(child: Text("Hello World!")),
+        body: Center(child: Text(user.fullname)),
       );
 }

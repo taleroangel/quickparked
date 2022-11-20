@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quick_parked/views/login_view.dart';
-import 'package:quick_parked/widgets/quickparked_logo.dart';
+import 'package:quickparked/views/login_view.dart';
+import 'package:quickparked/widgets/quickparked_logo.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});

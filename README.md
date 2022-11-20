@@ -1,4 +1,4 @@
-# quick_parked
+# quickparked
 
 A new Flutter project.
 

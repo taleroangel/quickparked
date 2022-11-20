@@ -1,4 +1,4 @@
-package com.example.quick_parked
+package com.devscite.quickparked
 
 import io.flutter.embedding.android.FlutterActivity
 
