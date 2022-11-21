@@ -1,3 +1,5 @@
+import 'package:firebase_database/firebase_database.dart';
+
 class User {
   final String fullname;
   final String email;
@@ -35,4 +37,13 @@ class User {
         vehicles = json['vehicles'] ?? [],
         createdAt = json['createdAt'],
         lastLogin = json['lastLogin'];
+
+  static Future<User> fetchUserFromFirebase(String uid) async {
+    DatabaseEvent event = await FirebaseDatabase.instance
+        .ref('users/$uid')
+        .once(DatabaseEventType.value);
+
+    return User.fromJson(Map<String, dynamic>.from(
+        event.snapshot.value as Map<Object?, Object?>));
+  }
 }

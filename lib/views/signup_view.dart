@@ -1,9 +1,7 @@
 import 'dart:developer';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:quickparked/models/user.dart' as quickparked;
+import 'package:quickparked/controllers/authentication_controller.dart';
 import 'package:quickparked/widgets/credentials_field.dart';
 import 'package:quickparked/widgets/quickparked_logo.dart';
 import 'package:flutter/foundation.dart';
@@ -12,36 +10,15 @@ class SignupView extends StatelessWidget {
   const SignupView({super.key});
 
   void attemptCreate(BuildContext context, String email, String password) =>
-      FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) {
-        /* --------- Database real time --------- */
-        final uuid = value.user!.uid;
-        DatabaseReference ref = FirebaseDatabase.instance.ref('users/$uuid');
-        quickparked.User newUser = quickparked.User(
-          fullname: "Usuario",
-          email: value.user!.email!,
-          createdAt: DateTime.now().toString(),
-          lastLogin: DateTime.now().toString(),
-        );
-
+      AuthenticationController.instance.createAccount(email, password,
+          onSuccess: () {
         ScaffoldMessenger.of(context).clearSnackBars();
-        /* --------- On user creation success --------- */
-        ref.set(newUser.toJson()).then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("La cuenta ha sido creada con éxito!"),
-            behavior: SnackBarBehavior.floating,
-          ));
-          Navigator.of(context).pop();
-        }).catchError((error) {
-          log(error.toString(), level: DiagnosticLevel.error.index);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(error.toString()),
-            behavior: SnackBarBehavior.floating,
-          ));
-        });
-      }) // Show error
-          .catchError((e) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("La cuenta ha sido creada con éxito!"),
+          behavior: SnackBarBehavior.floating,
+        ));
+        Navigator.of(context).pop();
+      }, onError: (e) {
         log("Failed account creation", level: DiagnosticLevel.error.index);
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

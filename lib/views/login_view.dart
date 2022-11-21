@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:quickparked/models/user.dart' as quickparked;
+import 'package:quickparked/controllers/authentication_controller.dart';
 import 'package:quickparked/views/map_view.dart';
 import 'package:quickparked/views/signup_view.dart';
 import 'package:quickparked/widgets/credentials_field.dart';
 import 'package:quickparked/widgets/quickparked_logo.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class _RecoverPassword extends StatefulWidget {
   // ignore: unused_element
@@ -22,9 +19,8 @@ class _RecoverPasswordState extends State<_RecoverPassword> {
   bool recoverEmpty = false;
 
   void doResetPassword(BuildContext context, String email) =>
-      FirebaseAuth.instance
-          .sendPasswordResetEmail(email: email)
-          .onError(((error, stackTrace) {
+      AuthenticationController.instance.recoverPassword(email, onSuccess: () {},
+          onError: (error) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text.rich(TextSpan(children: [
@@ -35,7 +31,7 @@ class _RecoverPasswordState extends State<_RecoverPassword> {
           ])),
           behavior: SnackBarBehavior.floating,
         ));
-      }));
+      });
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -95,49 +91,32 @@ class _RecoverPasswordState extends State<_RecoverPassword> {
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
-  void attemptLogin(BuildContext context, String email, String password) =>
-      FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password)
-          // Value
-          .then((value) {
-        // Get user
-        final userid = value.user!.uid;
-        FirebaseDatabase.instance
-            .ref('users/$userid')
-            .once(DatabaseEventType.value)
-            .then((event) {
-          // Parse JSON
-          final loggedUser = quickparked.User.fromJson(
-              Map<String, dynamic>.from(
-                  event.snapshot.value as Map<Object?, Object?>));
-
-          // Show message
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Sesión iniciada correctamente!"),
-            behavior: SnackBarBehavior.floating,
-          ));
-
-          // Navigation
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => MapView(user: loggedUser),
-          ));
-        });
-      })
-          // Show error
-          .catchError((e) {
-        log("Failed login", level: DiagnosticLevel.error.index);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text.rich(TextSpan(children: [
-            const TextSpan(
-                text: "No se ha podido iniciar sesión\n",
-                style: TextStyle(color: Colors.red)),
-            TextSpan(text: e.message)
-          ])),
-          behavior: SnackBarBehavior.floating,
-        ));
-      });
+  void attemptLogin(BuildContext context, String email, String password) {
+    AuthenticationController.instance.login(email, password, onSuccess: () {
+      // Show message
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Sesión iniciada correctamente!"),
+        behavior: SnackBarBehavior.floating,
+      ));
+      // Create MapView
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => const MapView(),
+      ));
+    }, onError: (e) {
+      log("Failed login", level: DiagnosticLevel.error.index);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text.rich(TextSpan(children: [
+          const TextSpan(
+              text: "No se ha podido iniciar sesión\n",
+              style: TextStyle(color: Colors.red)),
+          TextSpan(text: e.message)
+        ])),
+        behavior: SnackBarBehavior.floating,
+      ));
+    });
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
