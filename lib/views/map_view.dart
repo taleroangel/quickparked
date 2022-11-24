@@ -1,147 +1,123 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:quickparked/controllers/authentication_controller.dart';
-import 'package:quickparked/views/login_view.dart';
 import 'package:quickparked/mixins/requires_location.dart';
-import 'package:quickparked/models/user.dart' as quickparked;
+import 'package:quickparked/providers/profile_picture_provider.dart';
+import 'package:quickparked/themes/assets_cache.dart';
+import 'package:quickparked/widgets/profile_picture.dart';
+import 'package:provider/provider.dart';
+import 'package:quickparked/widgets/user_drawer.dart';
 
-class _UserDrawer extends StatelessWidget {
-  // ignore: unused_element
-  _UserDrawer({super.key});
-  final quickparked.User user = AuthenticationController.instance.currentUser!;
-
-  void showExit(BuildContext context, Function() doExit) => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            title: const Text("Cerrar sesión"),
-            content: const Text("¿Estas seguro que deseas cerrar sesión?"),
-            actions: [
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).hintColor),
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("Cancelar")),
-              ElevatedButton(
-                  child: const Text("Cerrar sesión"),
-                  onPressed: () => AuthenticationController.instance
-                      .logout(onSuccess: doExit(), onError: (_) {}))
-            ],
-          ));
-
-  @override
-  Widget build(BuildContext context) => Drawer(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
-              children: [
-                Text(
-                  'Bienvenido ${user.fullname}',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                const Divider(
-                  height: 10.0,
-                ),
-                /* --------- Buttons --------- */
-                const ListTile(
-                  iconColor: Colors.black,
-                  leading: Icon(Icons.home_rounded),
-                  title: Text("Mi Ciudad"),
-                ),
-                const ListTile(
-                  iconColor: Colors.black,
-                  leading: Icon(Icons.favorite),
-                  title: Text("Favoritos"),
-                ),
-                const ListTile(
-                  iconColor: Colors.black,
-                  leading: Icon(Icons.settings),
-                  title: Text("Configuraciones"),
-                ),
-                ListTile(
-                  iconColor: Colors.black,
-                  leading: const Icon(Icons.logout),
-                  title: const Text("Cerrar Sesión"),
-                  onTap: () => showExit(
-                      context,
-                      () => Navigator.of(context)
-                              .pushReplacement(MaterialPageRoute(
-                            builder: (context) => const LoginView(),
-                          ))),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-}
-
-class MapView extends StatefulWidget {
+class MapView extends StatelessWidget {
   const MapView({super.key});
 
-  static const initialZoom = 18.0;
-  static const initialPosition = LatLng(4.628360, -74.064639);
-
   @override
-  State<MapView> createState() => _MapViewState();
+  Widget build(BuildContext context) {
+    context.read<ProfilePictureProvider>().updateProfilePicture();
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+    return Scaffold(
+      key: scaffoldKey,
+      drawer: const UserDrawer(),
+      body: SafeArea(
+          child: Stack(
+        children: [
+          const _MapArea(),
+          Positioned(
+              top: 10.0,
+              left: 10.0,
+              child: FloatingActionButton(
+                heroTag: null,
+                child: const Icon(Icons.list),
+                onPressed: () {
+                  scaffoldKey.currentState!.openDrawer();
+                },
+              )),
+          const Positioned(
+            top: 45,
+            left: 45,
+            child: ProfilePicture(size: 45),
+          ),
+        ],
+      )),
+    );
+  }
 }
 
-class _MapViewState extends State<MapView> with RequiresLocation {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+class _MapArea extends StatefulWidget {
+  const _MapArea({super.key});
 
-  final Set<Marker> mapMarkers = <Marker>{};
+  @override
+  State<_MapArea> createState() => __MapAreaState();
 
-  void showLocationError(context, exception) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text.rich(TextSpan(children: [
-      const TextSpan(
-          text: "Error al obtener la ubicación\n",
-          style: TextStyle(color: Colors.red)),
-      TextSpan(text: (exception as LocationException).cause),
-    ]))));
+  static const initialPosition = LatLng(4.628925, -74.064414);
+  static const defaultZoom = 18.0;
+}
+
+class __MapAreaState extends State<_MapArea> with RequiresLocation {
+  final _controller = Completer<GoogleMapController>();
+  // final _userLocations = Completer<Stream<LatLng>>();
+  final _markers = <Marker>{};
+
+  Future<LatLng> setUserLocation() async {
+    final userPosition = await getCurrentLocation();
+    setState(() {
+      _markers.add(Marker(
+          markerId: MarkerId("user"),
+          position: userPosition,
+          icon: AssetsCache.instance.iconLocation));
+    });
+    return userPosition;
   }
 
   @override
   void initState() {
-    startLocationService().then((_) => setState(() {}));
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        key: _scaffoldKey,
-        drawer: _UserDrawer(),
-        body: SafeArea(
-          child: Stack(children: [
-            GoogleMap(
-              mapType: MapType.normal,
-              markers: mapMarkers,
-              initialCameraPosition: const CameraPosition(
-                  target: MapView.initialPosition, zoom: MapView.initialZoom),
-              onMapCreated: (controller) {},
-            ),
-            Positioned(
-                top: 10.0,
-                left: 10.0,
-                child: FloatingActionButton(
-                  heroTag: null,
-                  child: const Icon(Icons.list),
-                  onPressed: () {
-                    _scaffoldKey.currentState!.openDrawer();
-                  },
-                )),
-            if (locationIsEnabled)
-              Positioned(
-                  top: 10.0,
-                  right: 10.0,
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    child: const Icon(Icons.my_location),
-                    onPressed: () {},
-                  )),
-          ]),
-        ),
-      );
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        GoogleMap(
+            onMapCreated: (controller) async {
+              _controller.complete(controller);
+              try {
+                controller.animateCamera(CameraUpdate.newLatLngZoom(
+                    await setUserLocation(), _MapArea.defaultZoom));
+              } on LocationException catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text.rich(TextSpan(children: [
+                    const TextSpan(
+                        text: "Error en el mapa\n",
+                        style: TextStyle(color: Colors.red)),
+                    TextSpan(text: e.cause)
+                  ])),
+                  behavior: SnackBarBehavior.floating,
+                ));
+              }
+            },
+            markers: _markers,
+            initialCameraPosition: CameraPosition(
+                target: _MapArea.initialPosition, zoom: _MapArea.defaultZoom)),
+        if (locationIsEnabled)
+          Positioned(
+              top: 10.0,
+              right: 10.0,
+              child: FloatingActionButton(
+                heroTag: null,
+                child: const Icon(Icons.my_location),
+                onPressed: () async {
+                  setUserLocation();
+                  (await _controller.future).animateCamera(
+                      CameraUpdate.newLatLngZoom(
+                          await setUserLocation(), _MapArea.defaultZoom));
+                },
+              )),
+      ],
+    );
+  }
 }

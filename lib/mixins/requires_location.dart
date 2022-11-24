@@ -1,12 +1,12 @@
 import 'dart:developer';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class LocationException implements Exception {
-  String cause;
-  LocationException(this.cause);
+  final String cause;
+  LocationException({this.cause = "Location isn't enabled"});
 }
 
 mixin RequiresLocation {
@@ -21,8 +21,9 @@ mixin RequiresLocation {
       if (!await location.requestService()) {
         _locationIsEnabled = false;
         log("Location service STOPPED", level: DiagnosticLevel.debug.index);
+        location.enableBackgroundMode(enable: false);
         throw LocationException(
-            "No se ha podido iniciar el servicio de ubicación");
+            cause: "No se ha podido iniciar el servicio de ubicación");
       }
     }
 
@@ -36,17 +37,40 @@ mixin RequiresLocation {
       } else {
         _locationIsEnabled = false;
         log("Location permission DENIED", level: DiagnosticLevel.debug.index);
-        throw LocationException("El permiso de Ubicación no fue concedido");
+        location.enableBackgroundMode(enable: false);
+        throw LocationException(
+            cause: "El permiso de ubicación no fue concedido");
       }
     }
 
     // Location is enabled
+    log("Location service STARTED", level: DiagnosticLevel.debug.index);
     _locationIsEnabled = true;
   }
 
+  void checkLocationService() async {
+    if (!await location.serviceEnabled() || !await location.requestService()) {
+      _locationIsEnabled = false;
+      log("Location service STOPPED", level: DiagnosticLevel.debug.index);
+      location.enableBackgroundMode(enable: false);
+    } else {
+      _locationIsEnabled = true;
+    }
+  }
+
   Future<LatLng> getCurrentLocation() async {
-    if (!locationIsEnabled) throw LocationException("Location isn't enabled");
+    if (!locationIsEnabled) await startLocationService();
     var position = await location.getLocation();
     return LatLng(position.latitude!, position.longitude!);
+  }
+
+  void stopBackground() async {
+    await location.enableBackgroundMode(enable: false);
+  }
+
+  void enableBackground() async {
+    await location.changeSettings(
+        accuracy: LocationAccuracy.high, interval: 1000);
+    await location.enableBackgroundMode(enable: true);
   }
 }

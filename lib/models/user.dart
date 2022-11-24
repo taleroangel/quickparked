@@ -5,18 +5,23 @@ class User {
   final String email;
   final bool active;
   final int? phone;
-  final List<dynamic> vehicles;
+  final String? vehicle;
   final String createdAt;
   final String lastLogin;
+
+  final double latitude;
+  final double longitude;
 
   const User({
     required this.fullname,
     required this.email,
     this.active = false,
     this.phone,
-    this.vehicles = const <dynamic>[],
+    this.vehicle,
     required this.createdAt,
     required this.lastLogin,
+    this.latitude = 0,
+    this.longitude = 0,
   });
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -24,7 +29,7 @@ class User {
         "email": email,
         "active": active,
         "phone": phone,
-        "vehicles": vehicles,
+        "vehicle": vehicle,
         "createdAt": createdAt,
         "lastLogin": lastLogin
       };
@@ -34,9 +39,11 @@ class User {
         email = json['email'],
         active = json['active'],
         phone = json['phone'],
-        vehicles = json['vehicles'] ?? [],
+        vehicle = json['vehicle'],
         createdAt = json['createdAt'],
-        lastLogin = json['lastLogin'];
+        lastLogin = json['lastLogin'],
+        latitude = json['latitude'].toDouble() ?? 0,
+        longitude = json['longitude'].toDouble() ?? 0;
 
   static Future<User> fetchUserFromFirebase(String uid) async {
     DatabaseEvent event = await FirebaseDatabase.instance
@@ -45,5 +52,9 @@ class User {
 
     return User.fromJson(Map<String, dynamic>.from(
         event.snapshot.value as Map<Object?, Object?>));
+  }
+
+  Future<void> updateUserOnFirebase(String uid) async {
+    await FirebaseDatabase.instance.ref('/users/$uid').update(toJson());
   }
 }

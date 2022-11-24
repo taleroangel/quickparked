@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quickparked/controllers/authentication_controller.dart';
 import 'package:quickparked/views/map_view.dart';
@@ -111,7 +112,7 @@ class LoginView extends StatelessWidget {
           const TextSpan(
               text: "No se ha podido iniciar sesión\n",
               style: TextStyle(color: Colors.red)),
-          TextSpan(text: e.message)
+          TextSpan(text: (e as FirebaseAuthException).message)
         ])),
         behavior: SnackBarBehavior.floating,
       ));
