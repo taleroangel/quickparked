@@ -145,7 +145,7 @@ class AuthenticationController {
       );
 
       // Push data to database
-      await ref.set(newUser.toJson());
+      await ref.set(newUser.toMap());
 
       if (firebase.FirebaseAuth.instance.currentUser != null) {
         logout();

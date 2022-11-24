@@ -43,6 +43,7 @@ mixin RequiresLocation {
 
     // Location is enabled
     log("Location service STARTED", level: DiagnosticLevel.debug.index);
+    location.changeSettings(interval: 10000);
     _locationIsEnabled = true;
   }
 

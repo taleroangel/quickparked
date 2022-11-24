@@ -9,15 +9,16 @@ import 'package:quickparked/widgets/profile_picture.dart';
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
-  Future<void> uploadPhoto(ImageSource source) async {
+  Future<bool> uploadPhoto(ImageSource source) async {
     // Request file
     final ImagePicker imagePicker = ImagePicker();
     final XFile? file = await imagePicker.pickImage(source: source);
     // If file is not valid
-    if (file == null) return;
+    if (file == null) return false;
     Uint8List filebytes = await file.readAsBytes();
     // Upload file
     await AuthenticationController.instance.uploadProfilePicture(filebytes);
+    return true;
   }
 
   @override
@@ -65,16 +66,18 @@ class SettingsView extends StatelessWidget {
                           heroTag: null,
                           child: const Icon(Icons.photo),
                           onPressed: () =>
-                              uploadPhoto(ImageSource.gallery).then((_) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                  content: Text(
-                                      "Se ha actualizado correctamente la imágen de perfil"),
-                                  behavior: SnackBarBehavior.floating,
-                                ));
-                                context
-                                    .read<ProfilePictureProvider>()
-                                    .updateProfilePicture();
+                              uploadPhoto(ImageSource.gallery).then((result) {
+                                if (result) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text(
+                                        "Se ha actualizado correctamente la imágen de perfil"),
+                                    behavior: SnackBarBehavior.floating,
+                                  ));
+                                  context
+                                      .read<ProfilePictureProvider>()
+                                      .updateProfilePicture();
+                                }
                               })))
                 ],
               ),

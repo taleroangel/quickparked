@@ -6,7 +6,7 @@ class CredentialsField extends StatefulWidget {
   final String submitLabel;
   final bool legalCheck;
   final Function(String email, String password) onSubmit;
-  // ignore: unused_element
+
   const CredentialsField(
       {required this.onSubmit,
       this.title = "Credenciales",

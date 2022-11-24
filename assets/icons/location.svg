@@ -10,7 +10,7 @@
     <ellipse style="fill-rule: nonzero; fill: url(#gradient-0); paint-order: fill;" cx="875.888" cy="286.856" rx="244.228" ry="244.228">
       <title>shadow</title>
     </ellipse>
-    <ellipse style="fill: rgb(250, 250, 250); stroke-width: 4px; stroke: rgb(156, 156, 156);" cx="875.888" cy="286.856" rx="207.371" ry="207.371">
+    <ellipse style="fill: rgb(250, 250, 250); stroke: rgb(156, 156, 156); stroke-width: 10px;" cx="875.888" cy="286.856" rx="207.371" ry="207.371">
       <title>outer</title>
     </ellipse>
     <ellipse style="fill: rgb(9, 142, 197);" cx="875.888" cy="286.856" rx="174.067" ry="174.067">

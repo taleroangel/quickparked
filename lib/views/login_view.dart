@@ -8,8 +8,7 @@ import 'package:quickparked/widgets/credentials_field.dart';
 import 'package:quickparked/widgets/quickparked_logo.dart';
 
 class _RecoverPassword extends StatefulWidget {
-  // ignore: unused_element
-  const _RecoverPassword({super.key});
+  const _RecoverPassword({Key? key}) : super(key: key);
 
   @override
   State<_RecoverPassword> createState() => _RecoverPasswordState();

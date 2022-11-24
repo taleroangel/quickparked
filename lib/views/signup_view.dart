@@ -39,6 +39,8 @@ class SignupView extends StatelessWidget {
             ? null
             : AppBar(
                 title: const Text("Registro"),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
               ),
         body: Padding(
           padding: const EdgeInsets.all(40.0),

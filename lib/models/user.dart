@@ -24,7 +24,7 @@ class User {
     this.longitude = 0,
   });
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toMap() => <String, dynamic>{
         "fullname": fullname,
         "email": email,
         "active": active,
@@ -34,7 +34,7 @@ class User {
         "lastLogin": lastLogin
       };
 
-  User.fromJson(Map<String, dynamic> json)
+  User.fromMap(Map<String, dynamic> json)
       : fullname = json['fullname'] ?? "Usuario",
         email = json['email'],
         active = json['active'],
@@ -50,11 +50,11 @@ class User {
         .ref('users/$uid')
         .once(DatabaseEventType.value);
 
-    return User.fromJson(Map<String, dynamic>.from(
+    return User.fromMap(Map<String, dynamic>.from(
         event.snapshot.value as Map<Object?, Object?>));
   }
 
   Future<void> updateUserOnFirebase(String uid) async {
-    await FirebaseDatabase.instance.ref('/users/$uid').update(toJson());
+    await FirebaseDatabase.instance.ref('/users/$uid').update(toMap());
   }
 }

@@ -1,0 +1,35 @@
+[
+  {
+    "name": "Makro Av Boyacá",
+    "address": "Cl. 81b #13, Bogotá",
+    "available": 26,
+    "fees": {
+      "car": 30,
+      "motorcycle": 17
+    },
+    "longitude": 4.6981187,
+    "latitude": -74.0849592
+  },
+  {
+    "name": "CC. Titán Plaza",
+    "address": "Carrera 72 # 80-94, Bogotá",
+    "available": 230,
+    "fees": {
+      "car": 50,
+      "motorcycle": 26
+    },
+    "longitude": 4.694744, 
+    "latitude": -74.086188
+  },
+  {
+    "name": "Puentelargo",
+    "address": "Calle 99 #71F-2 A, Bogotá",
+    "available": 0,
+    "fees": {
+      "car": 20,
+      "motorcycle": 15
+    },
+    "longitude": 4.6981187,
+    "latitude": -74.0849592
+  }
+]

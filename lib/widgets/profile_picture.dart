@@ -17,7 +17,7 @@ class ProfilePicture extends StatelessWidget {
           shape: BoxShape.circle,
           image: DecorationImage(
             image: provider.profilePicture,
-            fit: BoxFit.scaleDown,
+            fit: BoxFit.cover,
           )),
     );
   }

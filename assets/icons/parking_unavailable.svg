@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="627.886 42.629 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <style bx:fonts="Actor">@import url(https://fonts.googleapis.com/css2?family=Actor%3Aital%2Cwght%400%2C400&amp;display=swap);</style>
+    <radialGradient gradientUnits="userSpaceOnUse" cx="874.85" cy="286.856" r="230.99" id="gradient-0" gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
+      <stop offset="0" style="stop-color: rgb(75, 75, 75);"/>
+      <stop offset="1" style="stop-color: rgba(255, 255, 255, 0.64);"/>
+    </radialGradient>
+  </defs>
+  <g transform="matrix(1, 0, 0, 1, 1.997999, 5.773013)">
+    <ellipse style="stroke-width: 15px; fill: url(#gradient-0);" cx="875.888" cy="286.856" rx="230.99" ry="230.99">
+      <title>outer</title>
+    </ellipse>
+    <ellipse style="fill: rgb(250, 250, 250); stroke: rgb(156, 156, 156); stroke-width: 15px;" cx="875.888" cy="286.856" rx="184.294" ry="184.294">
+      <title>outer</title>
+    </ellipse>
+    <ellipse style="fill: rgb(229, 86, 58);" cx="875.888" cy="286.856" rx="173.243" ry="173.243">
+      <title>inner</title>
+    </ellipse>
+    <text style="fill: rgb(51, 51, 51); font-family: Actor; font-size: 320.6px; font-weight: 700; white-space: pre;" x="788.224" y="395.647">P</text>
+  </g>
+</svg>

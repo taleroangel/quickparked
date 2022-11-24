@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:quickparked/controllers/authentication_controller.dart';
+import 'package:quickparked/providers/parkings_provider.dart';
 import 'package:quickparked/providers/profile_picture_provider.dart';
 import 'package:quickparked/themes/assets_cache.dart';
 import 'package:quickparked/themes/quickparked_theme.dart';
@@ -29,9 +30,8 @@ class QuickParked extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiProvider(
           providers: [
-            ChangeNotifierProvider(
-              create: (_) => ProfilePictureProvider(),
-            )
+            ChangeNotifierProvider(create: (_) => ProfilePictureProvider()),
+            ChangeNotifierProvider(create: (_) => ParkingsProvider())
           ],
           builder: (context, _) => MaterialApp(
               theme: quickParkedThemeData,
