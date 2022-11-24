@@ -1,10 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:quickparked/mixins/requires_location.dart';
 import 'package:quickparked/providers/profile_picture_provider.dart';
 import 'package:quickparked/themes/assets_cache.dart';
@@ -59,18 +59,31 @@ class _MapArea extends StatefulWidget {
 
 class __MapAreaState extends State<_MapArea> with RequiresLocation {
   final _controller = Completer<GoogleMapController>();
-  // final _userLocations = Completer<Stream<LatLng>>();
-  final _markers = <Marker>{};
+  final locationSubscription = Completer<StreamSubscription>();
+  bool moveCamera = true;
+  Marker? _userPositionMarker;
+  final _parkingMarkers = <Marker>{};
 
-  Future<LatLng> setUserLocation() async {
-    final userPosition = await getCurrentLocation();
+  setUserLocation(LatLng userPosition, {bool cameraMove = false}) {
     setState(() {
-      _markers.add(Marker(
+      _userPositionMarker = (Marker(
           markerId: MarkerId("user"),
           position: userPosition,
           icon: AssetsCache.instance.iconLocation));
     });
-    return userPosition;
+
+    if (moveCamera || cameraMove) {
+      _controller.future.then((controller) {
+        controller.animateCamera(
+            CameraUpdate.newLatLngZoom(userPosition, _MapArea.defaultZoom));
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    locationSubscription.future.then((value) => value.cancel());
+    super.dispose();
   }
 
   @override
@@ -82,27 +95,38 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        GoogleMap(
-            onMapCreated: (controller) async {
-              _controller.complete(controller);
-              try {
-                controller.animateCamera(CameraUpdate.newLatLngZoom(
-                    await setUserLocation(), _MapArea.defaultZoom));
-              } on LocationException catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text.rich(TextSpan(children: [
-                    const TextSpan(
-                        text: "Error en el mapa\n",
-                        style: TextStyle(color: Colors.red)),
-                    TextSpan(text: e.cause)
-                  ])),
-                  behavior: SnackBarBehavior.floating,
-                ));
-              }
-            },
-            markers: _markers,
-            initialCameraPosition: CameraPosition(
-                target: _MapArea.initialPosition, zoom: _MapArea.defaultZoom)),
+        Listener(
+          onPointerDown: (event) => (moveCamera = false),
+          child: GoogleMap(
+              onMapCreated: (controller) async {
+                _controller.complete(controller);
+                try {
+                  final userPosition = await getCurrentLocation();
+                  setUserLocation(userPosition, cameraMove: true);
+                  locationSubscription
+                      .complete(location.onLocationChanged.listen((event) {
+                    setUserLocation(LatLng(event.latitude!, event.longitude!));
+                  }));
+                } on LocationException catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text.rich(TextSpan(children: [
+                      const TextSpan(
+                          text: "Error en el mapa\n",
+                          style: TextStyle(color: Colors.red)),
+                      TextSpan(text: e.cause)
+                    ])),
+                    behavior: SnackBarBehavior.floating,
+                  ));
+                }
+              },
+              markers: {
+                if (_userPositionMarker != null) _userPositionMarker!,
+                ..._parkingMarkers
+              },
+              initialCameraPosition: CameraPosition(
+                  target: _MapArea.initialPosition,
+                  zoom: _MapArea.defaultZoom)),
+        ),
         if (locationIsEnabled)
           Positioned(
               top: 10.0,
@@ -111,10 +135,9 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
                 heroTag: null,
                 child: const Icon(Icons.my_location),
                 onPressed: () async {
-                  setUserLocation();
-                  (await _controller.future).animateCamera(
-                      CameraUpdate.newLatLngZoom(
-                          await setUserLocation(), _MapArea.defaultZoom));
+                  final userPosition = await getCurrentLocation();
+                  setUserLocation(userPosition, cameraMove: true);
+                  moveCamera = true;
                 },
               )),
       ],

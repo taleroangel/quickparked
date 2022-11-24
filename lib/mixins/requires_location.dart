@@ -21,7 +21,6 @@ mixin RequiresLocation {
       if (!await location.requestService()) {
         _locationIsEnabled = false;
         log("Location service STOPPED", level: DiagnosticLevel.debug.index);
-        location.enableBackgroundMode(enable: false);
         throw LocationException(
             cause: "No se ha podido iniciar el servicio de ubicación");
       }
@@ -37,7 +36,6 @@ mixin RequiresLocation {
       } else {
         _locationIsEnabled = false;
         log("Location permission DENIED", level: DiagnosticLevel.debug.index);
-        location.enableBackgroundMode(enable: false);
         throw LocationException(
             cause: "El permiso de ubicación no fue concedido");
       }
@@ -52,7 +50,6 @@ mixin RequiresLocation {
     if (!await location.serviceEnabled() || !await location.requestService()) {
       _locationIsEnabled = false;
       log("Location service STOPPED", level: DiagnosticLevel.debug.index);
-      location.enableBackgroundMode(enable: false);
     } else {
       _locationIsEnabled = true;
     }
@@ -62,15 +59,5 @@ mixin RequiresLocation {
     if (!locationIsEnabled) await startLocationService();
     var position = await location.getLocation();
     return LatLng(position.latitude!, position.longitude!);
-  }
-
-  void stopBackground() async {
-    await location.enableBackgroundMode(enable: false);
-  }
-
-  void enableBackground() async {
-    await location.changeSettings(
-        accuracy: LocationAccuracy.high, interval: 1000);
-    await location.enableBackgroundMode(enable: true);
   }
 }
