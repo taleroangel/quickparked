@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quickparked/controllers/authentication_controller.dart';
@@ -104,7 +103,6 @@ class LoginView extends StatelessWidget {
         builder: (context) => const MapView(),
       ));
     }, onError: (e) {
-      log("Failed login", level: DiagnosticLevel.error.index);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text.rich(TextSpan(children: [
@@ -135,7 +133,7 @@ class LoginView extends StatelessWidget {
                   submitLabel: "Continuar",
                   onSubmit: (email, password) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Estamos iniciando sesión tu sesión"),
+                      content: Text("Estamos iniciando tu sesión"),
                       behavior: SnackBarBehavior.floating,
                     ));
 

@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:quickparked/models/parking.dart';
 
 class User {
   final String fullname;
@@ -8,6 +9,7 @@ class User {
   final String? vehicle;
   final String createdAt;
   final String lastLogin;
+  final List<String> favorites;
 
   final double latitude;
   final double longitude;
@@ -22,6 +24,7 @@ class User {
     required this.lastLogin,
     this.latitude = 0,
     this.longitude = 0,
+    this.favorites = const [],
   });
 
   Map<String, dynamic> toMap() => <String, dynamic>{
@@ -31,7 +34,10 @@ class User {
         "phone": phone,
         "vehicle": vehicle,
         "createdAt": createdAt,
-        "lastLogin": lastLogin
+        "lastLogin": lastLogin,
+        "favorites": favorites,
+        "latitude": latitude,
+        "longitude": longitude
       };
 
   User.fromMap(Map<String, dynamic> json)
@@ -42,8 +48,13 @@ class User {
         vehicle = json['vehicle'],
         createdAt = json['createdAt'],
         lastLogin = json['lastLogin'],
-        latitude = json['latitude'].toDouble() ?? 0,
-        longitude = json['longitude'].toDouble() ?? 0;
+        latitude = json['latitude']?.toDouble() ?? 0,
+        longitude = json['longitude']?.toDouble() ?? 0,
+        favorites = json['favorites'] != null
+            ? (json['favorites'] as List<Object?>)
+                .map((e) => e.toString())
+                .toList()
+            : [];
 
   static Future<User> fetchUserFromFirebase(String uid) async {
     DatabaseEvent event = await FirebaseDatabase.instance
@@ -57,4 +68,7 @@ class User {
   Future<void> updateUserOnFirebase(String uid) async {
     await FirebaseDatabase.instance.ref('/users/$uid').update(toMap());
   }
+
+  List<Parking> favoriteParkings(List<Parking> parkings) =>
+      parkings.where((element) => favorites.contains(element.uid)).toList();
 }

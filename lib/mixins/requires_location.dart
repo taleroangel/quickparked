@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -20,7 +17,6 @@ mixin RequiresLocation {
     if (!await location.serviceEnabled()) {
       if (!await location.requestService()) {
         _locationIsEnabled = false;
-        log("Location service STOPPED", level: DiagnosticLevel.debug.index);
         throw LocationException(
             cause: "No se ha podido iniciar el servicio de ubicación");
       }
@@ -32,17 +28,14 @@ mixin RequiresLocation {
       permissionGranted = await location.requestPermission();
       if (permissionGranted == PermissionStatus.granted ||
           permissionGranted == PermissionStatus.grantedLimited) {
-        log("Location permission ACCEPTED", level: DiagnosticLevel.debug.index);
       } else {
         _locationIsEnabled = false;
-        log("Location permission DENIED", level: DiagnosticLevel.debug.index);
         throw LocationException(
             cause: "El permiso de ubicación no fue concedido");
       }
     }
 
     // Location is enabled
-    log("Location service STARTED", level: DiagnosticLevel.debug.index);
     location.changeSettings(interval: 10000);
     _locationIsEnabled = true;
   }
@@ -50,7 +43,6 @@ mixin RequiresLocation {
   void checkLocationService() async {
     if (!await location.serviceEnabled() || !await location.requestService()) {
       _locationIsEnabled = false;
-      log("Location service STOPPED", level: DiagnosticLevel.debug.index);
     } else {
       _locationIsEnabled = true;
     }

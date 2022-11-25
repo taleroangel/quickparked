@@ -1,22 +1,6 @@
 import 'dart:math';
 import 'package:vector_math/vector_math.dart';
 
-class DistanceWrapper<T> implements Comparable<DistanceWrapper<T>> {
-  final double distance;
-  final T object;
-  DistanceWrapper({required this.distance, required this.object});
-
-  @override
-  int compareTo(DistanceWrapper<T> other) {
-    return distance.compareTo(other.distance);
-  }
-
-  DistanceWrapper.fromCoordinates(double fromLatitude, double fromLongitude,
-      double toLatitude, double toLongitude, this.object)
-      : distance = DistanceUtils.calculateDistanceBetweenKm(
-            fromLatitude, fromLongitude, toLatitude, toLongitude);
-}
-
 class DistanceUtils {
   static const _averageRadiusOfEarthKm = 6371;
 

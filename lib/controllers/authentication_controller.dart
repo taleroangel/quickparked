@@ -159,6 +159,24 @@ class AuthenticationController {
     }
   }
 
+  void addFavorite(String parkingUid) {
+    try {
+      _currentUser!.favorites.add(parkingUid);
+      _currentUser!.updateUserOnFirebase(getUserUID()!);
+    } on NullThrownError catch (_) {
+      throw AuthenticationException();
+    }
+  }
+
+  void removeFavorite(String parkingUid) {
+    try {
+      _currentUser!.favorites.remove(parkingUid);
+      _currentUser!.updateUserOnFirebase(getUserUID()!);
+    } on NullThrownError catch (_) {
+      throw AuthenticationException();
+    }
+  }
+
   // This class is a Singleton
   AuthenticationController._();
   static final AuthenticationController _global = AuthenticationController._();

@@ -128,7 +128,7 @@ class _UserFormState extends State<_UserForm> {
                     value!.isEmpty ? "No puede estar vacío" : null),
                 onSaved: (newValue) => (fullname = newValue!),
                 enableSuggestions: true,
-                keyboardType: TextInputType.name,
+                keyboardType: TextInputType.text,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.person),
                   border: OutlineInputBorder(),

@@ -6,6 +6,8 @@ import 'package:quickparked/widgets/parking_selector.dart';
 class BottomParkingsSheet extends StatelessWidget {
   const BottomParkingsSheet({super.key});
 
+  static const maxItems = 3;
+
   static const initialWidgets = [
     Padding(
       padding: EdgeInsets.all(8.0),
@@ -20,6 +22,8 @@ class BottomParkingsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ParkingsProvider>();
+    final parkings = provider.ordered;
+
     return DraggableScrollableSheet(
         minChildSize: 0.12,
         initialChildSize: 0.2,
@@ -38,14 +42,14 @@ class BottomParkingsSheet extends StatelessWidget {
                   ]),
               child: ListView.builder(
                   controller: scrollController,
-                  itemCount: initialWidgets.length + provider.parkings.length,
+                  itemCount: initialWidgets.length +
+                      (parkings.length > maxItems ? maxItems : parkings.length),
                   itemBuilder: (context, index) {
                     if (index < initialWidgets.length) {
                       return initialWidgets[index];
                     } else {
                       return ParkingSelector(
-                          parking:
-                              provider.parkings[index - initialWidgets.length]);
+                          parking: parkings[index - initialWidgets.length]);
                     }
                   }),
             ));

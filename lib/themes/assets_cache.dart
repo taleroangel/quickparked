@@ -8,10 +8,13 @@ class AssetsCache {
   final BitmapDescriptor iconLocation;
   final BitmapDescriptor iconParkingAvailable;
   final BitmapDescriptor iconParkingUnavailable;
+  final BitmapDescriptor iconSibling;
+
   AssetsCache._(
       {required this.iconLocation,
       required this.iconParkingAvailable,
-      required this.iconParkingUnavailable});
+      required this.iconParkingUnavailable,
+      required this.iconSibling});
 
   static AssetsCache? _global;
 
@@ -23,10 +26,12 @@ class AssetsCache {
         await getAssetAsBitmap('assets/icons/parking_available.png');
     var iconParkingUnavailable =
         await getAssetAsBitmap('assets/icons/parking_unavailable.png');
+    var iconSibling = await getAssetAsBitmap('assets/icons/sibling.png');
     _global = AssetsCache._(
         iconLocation: iconLocation,
         iconParkingAvailable: iconParkingAvailable,
-        iconParkingUnavailable: iconParkingUnavailable);
+        iconParkingUnavailable: iconParkingUnavailable,
+        iconSibling: iconSibling);
   }
 
   static AssetsCache get instance => _global!;

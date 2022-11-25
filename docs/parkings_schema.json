@@ -1,35 +1,112 @@
-[
-  {
-    "name": "Makro Av Boyacá",
-    "address": "Cl. 81b #13, Bogotá",
-    "available": 26,
-    "fees": {
-      "car": 30,
-      "motorcycle": 17
-    },
-    "longitude": 4.6981187,
-    "latitude": -74.0849592
-  },
-  {
-    "name": "CC. Titán Plaza",
-    "address": "Carrera 72 # 80-94, Bogotá",
-    "available": 230,
-    "fees": {
-      "car": 50,
-      "motorcycle": 26
-    },
-    "longitude": 4.694744, 
-    "latitude": -74.086188
-  },
-  {
-    "name": "Puentelargo",
-    "address": "Calle 99 #71F-2 A, Bogotá",
-    "available": 0,
-    "fees": {
-      "car": 20,
-      "motorcycle": 15
-    },
-    "longitude": 4.6981187,
-    "latitude": -74.0849592
-  }
-]
+{
+	"e5233f98-6e57-4919-96ba-bb4565fd52f8": {
+		"address": "Cl. 81b #13, Bogotá",
+		"available": 26,
+		"fees": {
+			"car": 30,
+			"motorcycle": 17
+		},
+		"latitude": 4.6981187,
+		"longitude": -74.0849592,
+		"name": "Makro Av Boyacá",
+		"uid": "e5233f98-6e57-4919-96ba-bb4565fd52f8"
+	},
+	"bfe68b7a-0294-4217-ad0f-d48cbb2a89c9": {
+		"address": "Carrera 72 # 80-94, Bogotá",
+		"available": 230,
+		"fees": {
+			"bike": 5,
+			"car": 50,
+			"electric": 15,
+			"motorcycle": 26
+		},
+		"latitude": 4.694744,
+		"longitude": -74.086188,
+		"name": "CC. Titán Plaza",
+		"uid": "bfe68b7a-0294-4217-ad0f-d48cbb2a89c9"
+	},
+	"fb33aed4-3dee-4373-b115-22fcee23c895": {
+		"address": "Calle 99 #71F-2 A, Bogotá",
+		"available": 0,
+		"fees": {
+			"car": 20,
+			"motorcycle": 15
+		},
+		"latitude": 4.6981187,
+		"longitude": -74.086188,
+		"name": "Puentelargo",
+		"uid": "fb33aed4-3dee-4373-b115-22fcee23c895"
+	},
+	"1510bccc-a69a-4cc0-9355-b6cd5ecac812": {
+		"address": "Cra. 1 #39, Bogotá, Bogotá",
+		"available": 58,
+		"fees": {
+			"car": 50,
+			"motorcycle": 20
+		},
+		"latitude": 4.626891,
+		"longitude": -74.0649706,
+		"name": "Parqueadero Javeriana",
+		"uid": "1510bccc-a69a-4cc0-9355-b6cd5ecac812"
+	},
+	"3f57021c-e619-40e4-990e-34bc8d1eaeb9": {
+		"address": "Cl. 41 #7 - 29, Bogotá",
+		"available": 12,
+		"fees": {
+			"car": 40
+		},
+		"latitude": 4.6285148,
+		"longitude": -74.0653905,
+		"name": "Parqueadero Calle 45",
+		"uid": "3f57021c-e619-40e4-990e-34bc8d1eaeb9"
+	},
+	"8f00686a-5e9f-4354-bb4c-7e1ac5fa1eeb": {
+		"address": "Cl 34 #14-57, Bogotá",
+		"available": 5,
+		"fees": {
+			"car": 25,
+			"motorcycle": 30
+		},
+		"latitude": 4.6229457,
+		"longitude": -74.0703219,
+		"name": "Parqueadero Público, Calle 34",
+		"uid": "8f00686a-5e9f-4354-bb4c-7e1ac5fa1eeb"
+	},
+	"d07b27a2-9b8b-49f6-960d-bd463ee49bd2": {
+		"address": "Cl 34 #1360, Bogotá",
+		"available": 0,
+		"fees": {
+			"car": 40,
+			"motorcycle": 20
+		},
+		"latitude": 4.6223253,
+		"longitude": -74.0729726,
+		"name": "Aparcar LTDA, Calle 34",
+		"uid": "d07b27a2-9b8b-49f6-960d-bd463ee49bd2"
+	},
+	"6620ded9-62ff-4873-94ab-a577d4ced2d3": {
+		"address": "Ak. 28 #3714, Bogotá",
+		"available": 0,
+		"fees": {
+			"car": 40,
+			"motorcycle": 20
+		},
+		"latitude": 4.6271123,
+		"longitude": -74.0782829,
+		"name": "La Soledad",
+		"uid": "6620ded9-62ff-4873-94ab-a577d4ced2d3"
+	},
+	"8232a797-1560-4335-803f-6647e95ec7d3": {
+		"address": "Cl 41 #21-44, Bogotá",
+		"available": 2,
+		"fees": {
+			"car": 30,
+			"electric": 40,
+			"motorcycle": 10
+		},
+		"latitude": 4.6295826,
+		"longitude": -74.0776284,
+		"name": "A Parking",
+		"uid": "8232a797-1560-4335-803f-6647e95ec7d3"
+	}
+}

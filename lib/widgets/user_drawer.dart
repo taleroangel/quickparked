@@ -1,5 +1,7 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:quickparked/controllers/authentication_controller.dart';
+import 'package:quickparked/views/favorites_view.dart';
 import 'package:quickparked/views/login_view.dart';
 import 'package:quickparked/views/settings_view.dart';
 import 'package:quickparked/models/user.dart' as quickparked;
@@ -56,15 +58,28 @@ class UserDrawer extends StatelessWidget {
                 child: Divider(),
               ),
               /* --------- Buttons --------- */
-              const ListTile(
+              ListTile(
                 iconColor: Colors.black,
-                leading: Icon(Icons.home_rounded),
-                title: Text("Mi Ciudad"),
+                leading: const Icon(Icons.home_rounded),
+                title: const Text("Mi Ciudad"),
+                onTap: () {
+                  // TODO Create actual HomePage
+                  AwesomeNotifications().createNotification(
+                      content: NotificationContent(
+                          id: 10,
+                          channelKey: 'quickparked_parking_available',
+                          title: 'Saludos desde QuickParked',
+                          body: 'Esta es una notificación',
+                          actionType: ActionType.DisabledAction));
+                },
               ),
-              const ListTile(
+              ListTile(
                 iconColor: Colors.black,
-                leading: Icon(Icons.favorite),
-                title: Text("Favoritos"),
+                leading: const Icon(Icons.favorite),
+                title: const Text("Favoritos"),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => FavoritesView(),
+                )),
               ),
               ListTile(
                 iconColor: Colors.black,

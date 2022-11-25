@@ -19,7 +19,6 @@ class SignupView extends StatelessWidget {
         ));
         Navigator.of(context).pop();
       }, onError: (e) {
-        log("Failed account creation", level: DiagnosticLevel.error.index);
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text.rich(TextSpan(children: [

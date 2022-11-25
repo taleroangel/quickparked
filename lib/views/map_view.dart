@@ -1,20 +1,19 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:quickparked/controllers/authentication_controller.dart';
-import 'package:quickparked/controllers/database_controller.dart';
 import 'package:quickparked/mixins/requires_location.dart';
-import 'package:quickparked/models/parking.dart';
 import 'package:quickparked/providers/parkings_provider.dart';
 import 'package:quickparked/providers/profile_picture_provider.dart';
+import 'package:quickparked/providers/siblings_provider.dart';
 import 'package:quickparked/themes/assets_cache.dart';
 import 'package:quickparked/views/parking_view.dart';
 import 'package:quickparked/widgets/bottom_parkings_sheet.dart';
 import 'package:quickparked/widgets/profile_picture.dart';
 import 'package:provider/provider.dart';
 import 'package:quickparked/widgets/user_drawer.dart';
+import 'package:shake/shake.dart';
+import 'package:vibration/vibration.dart';
 
 /// The actual view, with the Drawer button and the Map
 class MapView extends StatelessWidget {
@@ -26,7 +25,8 @@ class MapView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<ProfilePictureProvider>().updateProfilePicture();
-    context.read<ParkingsProvider>().initialParkingSetup(initialPosition);
+    context.read<ParkingsProvider>().startListening();
+    context.read<SiblingsProvider>().startListening();
     final scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
       key: scaffoldKey,
@@ -61,25 +61,24 @@ class MapView extends StatelessWidget {
 class _MapArea extends StatefulWidget {
   const _MapArea();
 
-  static Marker markerFromParking(Parking parking, Function() onTap) => Marker(
-      markerId: MarkerId(parking.uid),
-      position: LatLng(parking.latitude, parking.longitude),
-      onTap: onTap,
-      visible: true,
-      icon: parking.available == 0
-          ? AssetsCache.instance.iconParkingUnavailable
-          : AssetsCache.instance.iconParkingAvailable);
-
   @override
   State<_MapArea> createState() => __MapAreaState();
 }
 
 class __MapAreaState extends State<_MapArea> with RequiresLocation {
   final _controller = Completer<GoogleMapController>();
-  final locationSubscription = Completer<StreamSubscription>();
-  bool moveCamera = true;
+  final _locationSubscription = Completer<StreamSubscription>();
+  final _shakeDetector = Completer<ShakeDetector>();
 
+  bool moveCamera = true;
   Marker? _userPositionMarker;
+
+  Future<void> centerOnLocation() async {
+    final controller = await _controller.future;
+    final userPosition = _userPositionMarker!.position;
+    controller.animateCamera(
+        CameraUpdate.newLatLngZoom(userPosition, MapView.defaultZoom));
+  }
 
   setUserLocation(LatLng userPosition, {bool cameraMove = false}) {
     setState(() {
@@ -90,6 +89,7 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
     });
 
     AuthenticationController.instance.userUpdateInfo({
+      "active": true,
       "latitude": userPosition.latitude,
       "longitude": userPosition.longitude
     });
@@ -104,18 +104,16 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
 
   @override
   void dispose() {
-    locationSubscription.future.then((value) => value.cancel());
+    _locationSubscription.future.then((value) => value.cancel());
+    _shakeDetector.future.then((value) => value.stopListening());
     super.dispose();
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ParkingsProvider>();
+    final parkings = context.watch<ParkingsProvider>();
+    final sibling = context.watch<SiblingsProvider>();
+
     return Stack(
       children: [
         LayoutBuilder(
@@ -131,16 +129,30 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
                   zoomGesturesEnabled: true,
                   zoomControlsEnabled: false,
                   onMapCreated: (controller) async {
+                    // Complete the controller
                     _controller.complete(controller);
                     try {
+                      // Start location services
                       await startLocationService();
                       // Create the location subscription
-                      locationSubscription
+                      _locationSubscription
                           .complete(location.onLocationChanged.listen((event) {
                         final location =
                             LatLng(event.latitude!, event.longitude!);
-                        provider.setUserLocation(location);
+                        parkings.setUserLocation(location);
                         setUserLocation(location);
+                      }));
+                      // Create the shake detector
+                      _shakeDetector.complete(
+                          ShakeDetector.autoStart(onPhoneShake: () async {
+                        await centerOnLocation();
+                        if ((await Vibration.hasVibrator())!) {
+                          Vibration.vibrate();
+                        }
+                        final userPosition = await getCurrentLocation();
+                        setUserLocation(userPosition, cameraMove: true);
+                        parkings.setUserLocation(userPosition);
+                        moveCamera = true;
                       }));
                     } on LocationException catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -155,14 +167,20 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
                     }
                   },
                   markers: {
+                    // User markers
                     if (_userPositionMarker != null) _userPositionMarker!,
-                    ...(provider.parkings
-                        .map((e) => _MapArea.markerFromParking(e.object, () {
+                    // Parkins markers
+                    ...(parkings.parkings.values
+                        .map((e) => e.createMarker(onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    ParkingView(parking: e.object),
+                                builder: (context) => ParkingView(parking: e),
                               ));
-                            })))
+                            }))),
+                    // Sibling markers
+                    ...(sibling.siblings
+                        .map((key, value) =>
+                            MapEntry(key, value.createMarker(uuid: key)))
+                        .values),
                   },
                   initialCameraPosition: const CameraPosition(
                       target: MapView.initialPosition,
@@ -178,9 +196,10 @@ class __MapAreaState extends State<_MapArea> with RequiresLocation {
                 heroTag: null,
                 child: const Icon(Icons.my_location),
                 onPressed: () async {
+                  await centerOnLocation();
                   final userPosition = await getCurrentLocation();
                   setUserLocation(userPosition, cameraMove: true);
-                  provider.setUserLocation(userPosition);
+                  parkings.setUserLocation(userPosition);
                   moveCamera = true;
                 },
               )),
