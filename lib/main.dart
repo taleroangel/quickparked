@@ -18,7 +18,7 @@ import 'firebase_options.dart';
 void main() async {
   // Initialize Firebase
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await AssetsCache.startAssets();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AuthenticationController.instance.syncWithFirebase();
